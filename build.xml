@@ -1,0 +1,36 @@
+<project default='build'>
+
+	<property name='src.dir' value='src' />
+	<property name='build.dir' value='bin' />
+	<property name='lib.dir' value='lib' />
+	<property name='verbose' value='no' />
+
+	<path id='master-classpath'>
+		<fileset dir='${lib.dir}'>
+			<include name='*.jar'/>
+		</fileset>
+		<pathelement path='${build.dir}'/>
+	</path>
+
+
+	<target name='init-dir'>
+		<mkdir dir='bin' />
+	</target>
+
+	<target name='build' depends='init-dir'>
+		<javac verbose='${verbose}' destdir='${build.dir}' srcdir='${src.dir}'>
+			<classpath refid="master-classpath"/>
+		</javac>
+	</target>
+	
+	<target name="run" depends="build">
+		<java classname="recognition.OnlineRecognizer" fork="true">
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name='clean'>
+		<delete dir='bin' />
+	</target>
+	
+</project>
