@@ -1,6 +1,8 @@
 package core;
 
-public class Point
+import java.io.Serializable;
+
+public class Point implements Serializable
 {
 	public double x;
 	public double y;
@@ -27,8 +29,6 @@ public class Point
 	{
 		x = Math.cos(angle) * (x - o.x) - Math.sin(angle) * (z - o.z) + o.x;
 		z = Math.sin(angle) * (x - o.x) + Math.cos(angle) * (z - o.z) + o.z;
-//		x = Math.cos(angle) * (x - o.x) - Math.sin(angle) * (x - o.x) + o.x;
-//		z = Math.sin(angle) * (z - o.z) - Math.sin(angle) * (z - o.z) + o.z;
 	}
 	
 	public static double distance(Point a, Point b)

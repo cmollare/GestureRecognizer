@@ -1,6 +1,10 @@
 package core;
 
-public enum Joint
+import java.io.Serializable;
+
+import org.openni.SkeletonJoint;
+
+public enum Joint implements Serializable
 {	
 	HEAD, //4.Head
 	NECK, //3.ShoulderCenter
@@ -27,114 +31,63 @@ public enum Joint
 	RIGHT_ANKLE,// 19.AnkleRight
 	RIGHT_FOOT;// 20.FootRight
 	
-	
-	public double weight()
+	public SkeletonJoint openni()
 	{
 		switch(this)
 		{
 		case HEAD:
-		case LEFT_ELBOW:
-		case LEFT_HAND:
-		case LEFT_SHOULDER:
-		case NECK:
-		case RIGHT_ELBOW:
-		case RIGHT_HAND:
-		case RIGHT_SHOULDER:
-		case TORSO:
-			return 1;
-		case LEFT_HIP:
-		case LEFT_KNEE:
-		case RIGHT_HIP:
-		case LEFT_FOOT:
-		case RIGHT_FOOT:
-		case RIGHT_KNEE:
-		case WAIST:
-		case LEFT_COLLAR:
-		case RIGHT_COLLAR:
-		case RIGHT_ANKLE:
+			return SkeletonJoint.HEAD;
 		case LEFT_ANKLE:
-		case RIGHT_FINGERTIP:
+			return SkeletonJoint.LEFT_ANKLE;
+		case LEFT_COLLAR:
+			return SkeletonJoint.LEFT_COLLAR;
+		case LEFT_ELBOW:
+			return SkeletonJoint.LEFT_ELBOW;
 		case LEFT_FINGERTIP:
+			return SkeletonJoint.LEFT_FINGER_TIP;
+		case LEFT_FOOT:
+			return SkeletonJoint.LEFT_FOOT;
+		case LEFT_HAND:
+			return SkeletonJoint.LEFT_HAND;
+		case LEFT_HIP:
+			return SkeletonJoint.LEFT_HIP;
+		case LEFT_KNEE:
+			return SkeletonJoint.LEFT_KNEE;
+		case LEFT_SHOULDER:
+			return SkeletonJoint.LEFT_SHOULDER;
 		case LEFT_WRIST:
+			return SkeletonJoint.LEFT_WRIST;
+		case NECK:
+			return SkeletonJoint.NECK;
+		case RIGHT_ANKLE:
+			return SkeletonJoint.RIGHT_ANKLE;
+		case RIGHT_COLLAR:
+			return SkeletonJoint.RIGHT_COLLAR;
+		case RIGHT_ELBOW:
+			return SkeletonJoint.RIGHT_ELBOW;
+		case RIGHT_FINGERTIP:
+			return SkeletonJoint.RIGHT_FINGER_TIP;
+		case RIGHT_FOOT:
+			return SkeletonJoint.RIGHT_FOOT;
+		case RIGHT_HAND:
+			return SkeletonJoint.RIGHT_HAND;
+		case RIGHT_HIP:
+			return SkeletonJoint.RIGHT_HIP;
+		case RIGHT_KNEE:
+			return SkeletonJoint.RIGHT_KNEE;
+		case RIGHT_SHOULDER:
+			return SkeletonJoint.RIGHT_SHOULDER;
 		case RIGHT_WRIST:
+			return SkeletonJoint.RIGHT_WRIST;
+		case TORSO:
+			return SkeletonJoint.TORSO;
+		case WAIST:
+			return SkeletonJoint.WAIST;
 		default:
-			return 0;
+			break;
 		}
-	}
-	
-	public boolean isDetected()
-	{
-		return isDetected(defaultConfiguration);
-	}
-	
-	public boolean isDetected(JointConfiguration c)
-	{
-		switch(c)
-		{
-		case NITE:
-			switch(this)
-			{
-			case HEAD:
-			case LEFT_ELBOW:
-			case LEFT_FOOT:
-			case LEFT_HAND:
-			case LEFT_HIP:
-			case LEFT_KNEE:
-			case LEFT_SHOULDER:
-			case NECK:
-			case RIGHT_ELBOW:
-			case RIGHT_FOOT:
-			case RIGHT_HAND:
-			case RIGHT_HIP:
-			case RIGHT_KNEE:
-			case RIGHT_SHOULDER:
-			case TORSO:
-				return true;
-			case WAIST:
-			case LEFT_COLLAR:
-			case RIGHT_COLLAR:
-			case RIGHT_ANKLE:
-			case LEFT_ANKLE:
-			case RIGHT_FINGERTIP:
-			case LEFT_FINGERTIP:
-			case LEFT_WRIST:
-			case RIGHT_WRIST:
-			default:
-				return false;
-			}
-		case CHALEARN:
-		default:
-			switch(this)
-			{
-			case HEAD:
-			case LEFT_ELBOW:
-			case LEFT_FOOT:
-			case LEFT_HAND:
-			case LEFT_HIP:
-			case LEFT_KNEE:
-			case LEFT_SHOULDER:
-			case LEFT_ANKLE:
-			case NECK:
-			case RIGHT_ELBOW:
-			case RIGHT_FOOT:
-			case RIGHT_HAND:
-			case RIGHT_HIP:
-			case RIGHT_KNEE:
-			case RIGHT_SHOULDER:
-			case RIGHT_ANKLE:
-			case TORSO:
-			case LEFT_WRIST:
-			case RIGHT_WRIST:
-			case WAIST:
-				return true;
-			case LEFT_COLLAR:
-			case RIGHT_COLLAR:
-			case RIGHT_FINGERTIP:
-			case LEFT_FINGERTIP:
-			default:
-				return false;
-			}
-		}
+		
+		return null;
 	}
 	
 	private static Joint[][] links = new Joint[][]{
@@ -176,13 +129,5 @@ public enum Joint
 	public static Joint[][] links()
 	{
 		return links;
-	}
-	
-	public static final int effectiveJointCount = 9; 
-	public static final JointConfiguration defaultConfiguration = JointConfiguration.CHALEARN;
-	
-	public enum JointConfiguration
-	{
-		NITE, CHALEARN;
 	}
 }

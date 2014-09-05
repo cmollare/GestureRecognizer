@@ -1,16 +1,9 @@
 package learning;
 
-import java.awt.image.SampleModel;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
-import core.Point;
-import core.Trajectory;
-
-public class Matrix
+public class Matrix implements Serializable
 {
 	private double[][] t;
 
@@ -360,39 +353,6 @@ public class Matrix
 		System.out.println(this.rows() + " x " + this.cols());
 	}
 
-	public void write(String filename, String gestureName)
-	{
-		int n = this.rows();
-		int m = this.cols();
-		try
-		{
-
-			File file = new File(filename);
-			if (!file.exists())
-				file.createNewFile();
-
-			// append mode with 2nd arg as true
-			FileWriter fw = new FileWriter(file.getAbsoluteFile(), true);
-			BufferedWriter bw = new BufferedWriter(fw);
-			String content = "";
-			
-			for (int i = 0; i < n; i++)
-			{
-				for (int j = 0; j < m; j++)
-					content += Double.toString(this.get(i, j)) + ",";
-				content += gestureName;
-				content += "\n";
-			}
-			// System.out.println();
-			bw.write(content);
-			bw.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
-	
 	public static Matrix multiply(Matrix a, Matrix b)
 	{
 		if (a.cols() != b.rows())
@@ -512,12 +472,5 @@ public class Matrix
 		newMat.set(n - 1, this.getRow(s - 1));
 		
 		return newMat;
-	}
-	
-	public static void main(String[] args)
-	{
-		double[][] t = new double[][] {{2, 3, 4, 5}, {6, 4, 3, 2}, {7, 1, 2, 5}};
-		Matrix m = new Matrix(t);
-		m.selectColumns(1).print();
 	}
 }

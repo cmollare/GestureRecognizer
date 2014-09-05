@@ -4,14 +4,19 @@
 	<property name='build.dir' value='bin' />
 	<property name='lib.dir' value='lib' />
 	<property name='verbose' value='no' />
+	<property name='input' value='kinect' />
+	<property name='duration' value='2' />
+	<property name='labels' value='' />
+	<property name='output' value='output' />
+	<property name='type' value='template' />
+	<property name='model' value='' />
 
 	<path id='master-classpath'>
 		<fileset dir='${lib.dir}'>
-			<include name='*.jar'/>
 		</fileset>
+			<include name='*.jar'/>
 		<pathelement path='${build.dir}'/>
 	</path>
-
 
 	<target name='init-dir'>
 		<mkdir dir='bin' />
@@ -23,8 +28,31 @@
 		</javac>
 	</target>
 	
-	<target name="run" depends="build">
-		<java classname="recognition.OnlineRecognizer" fork="true">
+	<target name="record" depends="build">
+		<java classname="exec.GestureRecorder" fork="true">
+			<arg value='${input}' />
+			<arg value='${duration}' />
+			<arg value='${labels}' />
+			<arg value='${output}' />
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name="train" depends="build">
+		<java classname="exec.RecognizerTrainer" fork="true">
+			<arg value='${input}' />
+			<arg value='${type}' />
+			<arg value='${output}' />
+			<classpath refid="master-classpath" />
+		</java>
+	</target>
+	
+	<target name="recognize" depends="build">
+		<java classname="exec.GestureClassifier" fork="true">
+			<arg value='${input}' />
+			<arg value='${model}' />
+			<arg value='${type}' />
+			<arg value='${output}' />
 			<classpath refid="master-classpath" />
 		</java>
 	</target>

@@ -16,35 +16,28 @@ public class GestureLabel
 {
 	public int start;
 	public int end;
-	public int id;
 	public String name;
 	
-	public GestureLabel(int s, int e, int i)
-	{
-		this(s, e, i, "Unknown");
-	}
-	
-	public GestureLabel(int s, int e, int i, String n)
+	public GestureLabel(int s, int e, String n)
 	{
 		start = s;
 		end = e;
-		id = i;
 		name = n;
 	}
 	
 	public GestureLabel(String s)
 	{
 		String[] str = s.split(",");
+		name = str[0];
 		start = Integer.parseInt(str[1]) - 1;
 		end = Integer.parseInt(str[2]) - 1;
-		id = Integer.parseInt(str[0]) - 1;
 	}
 	
 	public static GestureLabel intersect(GestureLabel a, GestureLabel b)
 	{
-		if (a.id != b.id || a.end < b.start || a.start > b.end)
+		if (!a.name.equals(b.name) || a.end < b.start || a.start > b.end)
 			return null;
-		return new GestureLabel(Math.max(a.start, b.start), Math.min(a.end, b.end), a.id);
+		return new GestureLabel(Math.max(a.start, b.start), Math.min(a.end, b.end), a.name);
 	}
 	
 	public static List<GestureLabel> merge(List<GestureLabel> a, List<GestureLabel> b)
@@ -76,7 +69,7 @@ public class GestureLabel
 
 	public void print()
 	{
-		System.out.println("[ " + start + " - " + end + " ] : " + (id + 1));
+		System.out.println("[ " + start + " - " + end + " ] : " + name);
 	}
 	
 	public static void print(List<GestureLabel> labels)
@@ -133,7 +126,7 @@ public class GestureLabel
 						{
 							if (i >= l.start && i <= l.end)
 							{
-								bw.write(Integer.toString(l.id + 1));
+								bw.write(l.name);
 								break;
 							}
 							else if (i < l.start)
@@ -164,7 +157,7 @@ public class GestureLabel
 		{
 			if (frame >= l.start && frame <= l.end)
 			{
-				System.out.print(l.id + 1);
+				System.out.print(l.name);
 				break;
 			}
 			else if (frame < l.start)
@@ -211,7 +204,7 @@ public class GestureLabel
 	}
 	
 	public static List<GestureLabel> fromStream(InputStream is, List<GestureLabel> labels)
-	{		
+	{
 		BufferedReader br = null;
 		try
 		{
@@ -257,7 +250,7 @@ public class GestureLabel
 			BufferedWriter bw = new BufferedWriter(fw);
 
 			for (GestureLabel label : labels)
-				bw.write((label.id  + 1) + "," + (label.start + 1) + "," + (label.end + 1) + "\n");
+				bw.write((label.name) + "," + (label.start + 1) + "," + (label.end + 1) + "\n");
 
 			bw.close();
 		}
@@ -267,13 +260,13 @@ public class GestureLabel
 		}
 	}
 	
-	public static void filter(List<GestureLabel> labels, int ignoreLabel)
+	public static void filter(List<GestureLabel> labels, String ignoreLabel)
 	{
 		Iterator<GestureLabel> iter = labels.iterator();
 		while(iter.hasNext())
 		{
 			GestureLabel n = iter.next();
-			if (n.id == ignoreLabel)
+			if (n.name == ignoreLabel)
 				iter.remove();
 		}
 	}
@@ -314,7 +307,7 @@ public class GestureLabel
 			{
 				prev.end = n.end;
 				if (nl > prevl)
-					prev.id = n.id;
+					prev.name = n.name;
 			}
 			else
 			{
@@ -326,31 +319,5 @@ public class GestureLabel
 		
 		labels.clear();
 		labels.addAll(newLabels);
-	}
-	
-	public static void main(String[] args)
-	{
-//		int id = 580;
-//		List<GestureLabel> gt = GestureLabel.fromFile("ChaLearn2014/validation/Sample0" + id + "_labels.csv");
-//		List<GestureLabel> res = GestureLabel.fromFile("ChaLearn2014/predictions/Sample0" + id + "_prediction.csv");
-////		List<GestureLabel> res2 = GestureLabel.fromFile("ChaLearn2014/oldpredictions/Sample0" + id + "_wrist_0.25.csv");
-////		List<GestureLabel> res2 = GestureLabel.fromFile("ChaLearn2014/oldpredictions/1.csv");
-////		List<GestureLabel> res3 = GestureLabel.fromFile("ChaLearn2014/oldpredictions/2.csv");
-//		GestureLabel.printLinear(gt, res);
-		
-		List<GestureLabel> a = new ArrayList<GestureLabel>();
-		List<GestureLabel> b = new ArrayList<GestureLabel>();
-		
-		a.add(new GestureLabel(0, 10, 0));
-		a.add(new GestureLabel(14, 18, 0));
-		
-		b.add(new GestureLabel(0, 10, 0));
-		b.add(new GestureLabel(11, 12, 0));
-		b.add(new GestureLabel(14, 14, 0));
-		b.add(new GestureLabel(16, 22, 0));
-		
-		
-		List<GestureLabel> r = GestureLabel.merge(a, b);
-		GestureLabel.print(r);
 	}
 }

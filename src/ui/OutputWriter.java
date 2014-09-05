@@ -1,10 +1,9 @@
-package gui;
+package ui;
 
-import recognition.Word;
 import core.*;
 
 public interface OutputWriter
 {
 	public void write(GestureLabel label);
-	public void write(Word w);
+	public void write(String s);
 }

@@ -1,10 +1,9 @@
 package learning;
 
+import java.io.Serializable;
 import java.util.List;
 
-import core.Gesture;
-
-public class HMM
+public class HMM implements Serializable
 {
 	private Matrix transitions;
 	private Matrix priors;
@@ -606,9 +605,9 @@ public class HMM
 		return new ViterbiResult(score, null);
 	}
 
-	public static int[] generateStateLabels(boolean repeatFirst, double... weights)
+	public static int[] generateStateLabels(int captureCount, boolean repeatFirst, double... weights)
 	{
-		int[] labels = new int[Gesture.sampleCount];
+		int[] labels = new int[captureCount];
 		double sum = 0;
 		for (double w : weights)
 			sum += w;
@@ -616,25 +615,16 @@ public class HMM
 		for (int i = 0; i < weights.length; i++)
 			weights[i] /= sum;
 
-		int stateCount = weights.length;
 		int framesLabeled = 0;
 
-		// for (int i = 0; i < stateCount; i++)
-		// {
-		// int l = (int) Math.round(Gesture.sampleCount * weights[i] / sum);
-		// for (int j = 0; j < l; j++)
-		// labels[framesLabeled + j] = i;
-		// framesLabeled += l;
-		// }
 		boolean singleState = (weights.length == 1 ? true : false);
 
 		int currentState = 0;
-		double frameWeight = 1.0 / Gesture.sampleCount;
+		double frameWeight = 1.0 / captureCount;
 
-		for (int i = 0; i < Gesture.sampleCount; i++)
+		for (int i = 0; i < captureCount; i++)
 		{
 			framesLabeled++;
-			// System.out.println("frameWeight * framesLabeled: " + frameWeight * framesLabeled);
 			if ((!singleState) && weights[currentState] <= frameWeight * framesLabeled)
 			{
 				currentState++;
@@ -643,13 +633,6 @@ public class HMM
 			labels[i] = currentState;
 		}
 
-		// System.out.println(Arrays.toString(weights));
-
 		return labels;
 	}
-
-	// public static void main(String[] args)
-	// {
-	// System.out.println(Arrays.toString(HMM.generateStateLabels(true, 0, 10, 3, 1)));
-	// }
 }

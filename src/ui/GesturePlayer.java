@@ -1,4 +1,4 @@
-package gui;
+package ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;

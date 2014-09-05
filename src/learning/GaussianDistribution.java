@@ -1,6 +1,8 @@
 package learning;
 
-public class GaussianDistribution
+import java.io.Serializable;
+
+public class GaussianDistribution implements Serializable
 {
 	private Matrix mean;
 	private Matrix cov;

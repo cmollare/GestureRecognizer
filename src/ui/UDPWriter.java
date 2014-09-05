@@ -1,4 +1,4 @@
-package gui;
+package ui;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,8 +7,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-
-import recognition.Word;
 
 import core.GestureLabel;
 
@@ -43,9 +41,9 @@ public class UDPWriter implements OutputWriter
 	}
 
 	@Override
-	public void write(Word w)
+	public void write(String n)
 	{
-		String s = w.name() + " " + 1f + "\n";
+		String s = n + " " + 1f + "\n";
 		byte[] b = s.getBytes();
 		try
 		{
@@ -56,15 +54,6 @@ public class UDPWriter implements OutputWriter
 		catch (IOException e)
 		{
 			e.printStackTrace();
-		}
-	}
-	
-	public static void main(String[] args)
-	{
-		OutputWriter writer = new UDPWriter("127.0.0.1", 9991);
-		while(true)
-		{
-			writer.write(Word.PIANO);
 		}
 	}
 }

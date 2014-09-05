@@ -2,33 +2,65 @@ package recognition;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
 import core.Gesture;
-import core.GestureLabel;
 import core.Joint;
 import learning.HMM;
 import learning.HMM.ViterbiResult;
 import learning.Matrix;
 
-public class HMMRecognizer
+public class HMMRecognizer extends Recognizer
 {
-	private static HMM[] hmm;
+	private HMM[] hmm;
 
-	public static void learn(List<List<Matrix>> templates, List<List<int[]>> labels)
+	@Override
+	public void learn(HashMap<String, List<Gesture>> gestures)
 	{
-		int count = templates.size();
-
-		hmm = new HMM[count];
-		for (int i = 0; i < count; i++)
+		labels = (String[]) gestures.keySet().toArray();
+		
+		List<List<Matrix>> gestureList = new ArrayList<List<Matrix>>();
+		for (String s : labels)
 		{
-			List<Matrix> classGestures = templates.get(i);
-			List<int[]> classLabels = labels.get(i);
-			int labelCount = labelCount(classLabels);
-			List<Matrix> gestureMatrices = gesturesToLabelMatrix(classGestures, classLabels, labelCount, i);
-//			System.out.println("Gesture: " + i);
-			hmm[i] = new HMM(gestureMatrices, labels.get(i));
+			List<Matrix> matrices = new ArrayList<Matrix>();
+			gestureList.add(matrices);
+			
+			for (Gesture g : gestures.get(s))
+				matrices.add(g.toMatrix());
+		}
+		
+		learn(gestureList);
+	}
+
+	@Override
+	public HashMap<String, Double> recognize(Gesture g)
+	{
+		Matrix gm = g.toMatrix(Joint.arms());
+		double[] scores = recognize(gm);
+		HashMap<String, Double> scoreMap = new HashMap<String, Double>();
+		int i = 0;
+		for (String l : labels)
+		{
+			scoreMap.put(l, scores[i]);
+			i++;
+		}
+		return null;
+	}
+
+	public void learn(List<List<Matrix>> set)
+	{
+		int classCount = set.size();
+
+		hmm = new HMM[classCount];
+		for (int i = 0; i < classCount; i++)
+		{
+			List<Matrix> classGestures = set.get(i);
+			List<int[]> classLabels = new ArrayList<int[]>();
+			for (Matrix m : classGestures)
+				classLabels.add(HMM.generateStateLabels(m.rows(), false, 1, 1, 1));
+			
+			hmm[i] = new HMM(classGestures, classLabels);
 		}
 
 		boolean train_again = false;
@@ -42,15 +74,13 @@ public class HMMRecognizer
 			it++;
 			System.out.println("Training it: " + it);
 
-			// Alignment ... print to file...
-
 			int nb_g = 0;
 
 			List<List<int[]>> newLLabels = new ArrayList<List<int[]>>();
 
-			for (int i = 0; i < count; i++)
+			for (int i = 0; i < classCount; i++)
 			{
-				List<Matrix> allGestures = templates.get(i);
+				List<Matrix> allGestures = set.get(i);
 				Iterator<Matrix> iterg = allGestures.iterator();
 
 				List<int[]> setLabels = new ArrayList<int[]>();
@@ -125,35 +155,28 @@ public class HMMRecognizer
 			if (ecart < 0.001)
 				train_again = false;
 
-			for (int i = 0; i < count; i++)
-			{
-				List<Matrix> classGestures = templates.get(i);
+			for (int i = 0; i < classCount; i++)
+			{			
+				List<Matrix> classGestures = set.get(i);
 				List<int[]> classLabels = newLLabels.get(i);
-
-				int labelCount = labelCount(classLabels);
-				List<Matrix> gestureMatrices = gesturesToLabelMatrix(classGestures, classLabels, labelCount, i);
-				hmm[i] = new HMM(gestureMatrices, classLabels);
-
-				// System.out.println("Gest i: " + i + " labelCount: " +
-				// labelCount);
-				// hmm[i].print();
-
+				
+				hmm[i] = new HMM(classGestures, classLabels);
 			}
 		}
 	}
 
-	public static ViterbiResult[] recognize(Matrix m)
+	public double[] recognize(Matrix m)
 	{
-		ViterbiResult scores[] = new ViterbiResult[hmm.length];
+		double scores[] = new double[hmm.length];
 		for (int i = 0; i < hmm.length; i++)
 		{
-			scores[i] = hmm[i].viterbi(m);
+			scores[i] = hmm[i].viterbi(m).score;
 		}
 
 		return scores;
 	}
 
-	public static ViterbiResult[] forward(Matrix m)
+	public ViterbiResult[] forward(Matrix m)
 	{
 		ViterbiResult scores[] = new ViterbiResult[hmm.length];
 
@@ -162,13 +185,13 @@ public class HMMRecognizer
 			scores[i] = hmm[i].forward(m);
 		}
 
-		// for (int i = 0; i < hmm.length; i++)
-		// scores[i] = hmm[i].forward(g.toMatrix(meaningfulJoints));
+//		for (int i = 0; i < hmm.length; i++)
+//			scores[i] = hmm[i].forward(g.toMatrix(meaningfulJoints));
 
 		return scores;
 	}
 
-	public static ViterbiResult[] recognizeMLP(Matrix[] MLPpost)
+	public ViterbiResult[] recognizeMLP(Matrix[] MLPpost)
 	{
 		ViterbiResult scores[] = new ViterbiResult[hmm.length];
 		for (int i = 0; i < hmm.length; i++)
@@ -177,7 +200,7 @@ public class HMMRecognizer
 		return scores;
 	}
 
-	public static ViterbiResult[] forwardMLP(Matrix[] MLPpost)
+	public ViterbiResult[] forwardMLP(Matrix[] MLPpost)
 	{
 		ViterbiResult scores[] = new ViterbiResult[hmm.length];
 		for (int i = 0; i < hmm.length; i++)
@@ -186,60 +209,12 @@ public class HMMRecognizer
 		return scores;
 	}
 
-	public static ViterbiResult[] forwardMLPLog(Matrix[] MLPpost)
+	public ViterbiResult[] forwardMLPLog(Matrix[] MLPpost)
 	{
 		ViterbiResult scores[] = new ViterbiResult[hmm.length];
 		for (int i = 0; i < hmm.length; i++)
 			scores[i] = hmm[i].forwardMLPLog(MLPpost, i);
 
 		return scores;
-	}
-
-	private static int labelCount(List<int[]> labels)
-	{
-		int labelCount = 0;
-		for (int[] v : labels)
-		{
-			for (int a : v)
-				labelCount = Math.max(labelCount, a + 1);
-		}
-
-		return labelCount;
-	}
-
-	private static List<Matrix> gesturesToLabelMatrix(List<Matrix> gestures, List<int[]> labels, int labelCount, int gestureLabel)
-	{
-		List<List<double[]>> l0 = new ArrayList<List<double[]>>();
-
-		for (int i = 0; i < labelCount; i++)
-			l0.add(new ArrayList<double[]>());
-
-		int s = gestures.size();
-		for (int i = 0; i < s; i++)
-		{
-			Matrix m = gestures.get(i);
-
-			int n = m.rows();
-			for (int j = 0; j < n; j++)
-			{
-				// System.out.println("i: " + i + " j: " + j);
-				int label = labels.get(i)[j];
-				l0.get(label).add(m.getRow(j));
-			}
-			// // String outname =
-			// "ChaLearn2014/arff/TRAIN_1_to_470samples_DELTA.arff";
-			// String outname =
-			// "ChaLearn2014/arff/VALIDATION_471_to_700_samples_DELTA.arff";
-			// // System.out.println(outname);
-			// System.out.println("Gest: " + gestures.get(i).name);
-			// m.write(outname, gestures.get(i).name);
-
-		}
-
-		List<Matrix> l = new ArrayList<Matrix>();
-		for (List<double[]> l2 : l0)
-			l.add(new Matrix(l2));
-
-		return l;
 	}
 }

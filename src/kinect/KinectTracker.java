@@ -1,6 +1,4 @@
 package kinect;
-import gui.View;
-import gui.Viewer;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,18 +6,11 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.openni.*;
 
-
-import com.primesense.NITE.*;
-
+import ui.View;
 import core.Capture;
 import core.Gesture;
 import core.Joint;
@@ -38,19 +29,13 @@ public class KinectTracker implements View
 	private volatile int userID;
 	private volatile BufferedImage image;
 	private ConcurrentLinkedQueue<Capture> queue;
-	private volatile int frameCount;
 	private volatile Capture lastCapture;
+	private Joint[] joints;
 
-	public KinectTracker()
+	public KinectTracker(Joint[] joints, String filename)
 	{
-		this(null);
-	}
-
-	public KinectTracker(String filename)
-	{
+		this.joints = joints;
 		queue = new ConcurrentLinkedQueue<Capture>();
-		frameCount = 0;
-
 		try
 		{
 			context = new Context();
@@ -70,14 +55,14 @@ public class KinectTracker implements View
 			height = imageMD.getFullYRes();
 			imgbytes = new byte[width * height];
 			image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-
+			
 			userGen = UserGenerator.create(context);
+
 			userGen.getNewUserEvent().addObserver(new IObserver<UserEventArgs>()
 			{
 				@Override
 				public void update(IObservable<UserEventArgs> observable, UserEventArgs args)
 				{
-					//System.out.println("New user: " + args.getId());
 					userID = args.getId();
 					try
 					{
@@ -94,15 +79,12 @@ public class KinectTracker implements View
 				@Override
 				public void update(IObservable<UserEventArgs> observable, UserEventArgs args)
 				{
-					//System.out.println("Lost user: " + args.getId());
 					lastCapture = null;
 				}
 			});
 
 			skelCap = userGen.getSkeletonCapability();
 			skelCap.setSkeletonProfile(SkeletonProfile.ALL);
-			context.startGeneratingAll();
-			updateAllMaps();
 		}
 		catch (GeneralException e)
 		{
@@ -110,7 +92,24 @@ public class KinectTracker implements View
 			System.exit(1);
 		}
 	}
-
+	
+	public void start()
+	{
+		try
+		{
+			context.startGeneratingAll();
+		}
+		catch (StatusException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public boolean isDone()
+	{
+		return false; // TODO
+	}
+	
 	private void updateAllMaps()
 	{
 		try
@@ -121,26 +120,26 @@ public class KinectTracker implements View
 		{
 			e.printStackTrace();
 		}
-		int timestamp = 0;
+
 		if (skelCap.isSkeletonTracking(userID))
 		{
-			Point[] positions = new Point[Capture.jointCount];
-			for (SkeletonJoint joint : SkeletonJoint.values())
+			Capture newCapture = new Capture();
+			for (Joint j : joints)
 			{
+				SkeletonJoint joint = j.openni();
 				try
 				{
+					Point p2;
 					if (skelCap.isJointAvailable(joint) && skelCap.isJointActive(joint))
 					{
 						SkeletonJointPosition jointPos = skelCap.getSkeletonJointPosition(userID, joint);
 						Point3D p = jointPos.getPosition();
-						positions[joint.ordinal()] = new Point(p.getX(), p.getY(), p.getZ());
-						// System.out.println("Acquired position of joint: " +
-						// joint.name());
+						p2 = new Point(p.getX(), p.getY(), p.getZ());
 					}
 					else
-					{
-						positions[joint.ordinal()] = new Point(0, 0, 0);
-					}
+						p2 = new Point(0, 0, 0);
+					
+					newCapture.put(p2, j);
 				}
 				catch (StatusException e)
 				{
@@ -148,13 +147,8 @@ public class KinectTracker implements View
 					e.printStackTrace();
 				}
 			}
-			lastCapture = new Capture(timestamp, positions);
+			lastCapture = newCapture;
 			queue.add(lastCapture);
-			frameCount++;
-		}
-		else
-		{
-			// System.out.println("User not tracked");
 		}
 	}
 
@@ -221,6 +215,52 @@ public class KinectTracker implements View
 		}
 	}
 
+	public static Gesture extractONIGesture(Joint[] joints, String filename)
+	{
+		return recordGesture(joints, filename, 1000);
+	}
+	
+	public static Gesture recordGesture(Joint[] joints, String filename, double duration)
+	{
+		Gesture g = new Gesture();
+		
+		long startTime = 0;
+		long ld = (long) (duration * 1000);
+		int lastFrameID = -1;
+		KinectTracker kt = new KinectTracker(joints, filename);
+		kt.start();
+		boolean firstFrame = true;
+		boolean run = true;
+		
+		while(run)
+		{
+			kt.update();
+			long currentTime = kt.depthGen.getTimestamp();
+			int currentFrameID = kt.depthGen.getFrameID();
+			
+			if (firstFrame)
+			{
+				startTime = currentTime;
+				firstFrame = false;
+			}
+			
+			if (lastFrameID < currentFrameID && currentTime - startTime < ld)
+			{
+				g.addCapture(kt.getCapture());
+				lastFrameID = currentFrameID;
+			}
+			else
+				run = false;
+		}
+		
+		return g;
+	}
+	
+	public static void main(String[] arg)
+	{
+		Gesture g = extractONIGesture(Joint.arms(), "res/p1.oni");
+	}
+	
 	@Override
 	public Dimension getPreferredSize()
 	{
@@ -236,9 +276,8 @@ public class KinectTracker implements View
 
 		if (lastCapture != null)
 		{
-			for (int i = 0; i < lastCapture.points.length; i++)
+			for (Point p : lastCapture)
 			{
-				Point p = lastCapture.points[i];
 				if (!p.isZero())
 				{
 					try
@@ -256,14 +295,14 @@ public class KinectTracker implements View
 
 			for (Joint[] link : Joint.links())
 			{
-				int a = link[1].ordinal();
-				int b = link[0].ordinal();
-				if (!lastCapture.points[a].isZero() && !lastCapture.points[b].isZero())
+				Point a = lastCapture.get(link[0]);
+				Point b = lastCapture.get(link[1]);
+				if (!a.isZero() && !b.isZero())
 				{
 					try
 					{
-						Point3D a_res = depthGen.convertRealWorldToProjective(new Point3D((float) lastCapture.points[a].x, (float) lastCapture.points[a].y, (float) lastCapture.points[a].z));
-						Point3D b_res = depthGen.convertRealWorldToProjective(new Point3D((float) lastCapture.points[b].x, (float) lastCapture.points[b].y, (float) lastCapture.points[b].z));
+						Point3D a_res = depthGen.convertRealWorldToProjective(new Point3D((float) a.x, (float) a.y, (float) a.z));
+						Point3D b_res = depthGen.convertRealWorldToProjective(new Point3D((float) b.x, (float) b.y, (float) b.z));
 						g.setColor(Color.BLUE);
 						g.drawLine((int) a_res.getX(), (int) a_res.getY(), (int) b_res.getX(), (int) b_res.getY());
 					}
@@ -273,14 +312,6 @@ public class KinectTracker implements View
 					}
 				}
 			}
-
-			Point lShoulder = lastCapture.points[Joint.LEFT_SHOULDER.ordinal()];
-			Point rShoulder = lastCapture.points[Joint.RIGHT_SHOULDER.ordinal()];
-			double theta = Gesture.shoulderAngle(lShoulder, rShoulder);
-			String thetaStr = Double.toString(theta).substring(0, 5);
-			//g.drawString("Frame: " + frameCount, 12, 22);
-			//System.out.println(thetaStr);
-			//g.drawString("Theta: " + thetaStr, 12, 12);
 		}
 	}
 
@@ -288,11 +319,5 @@ public class KinectTracker implements View
 	public void update()
 	{
 		updateAllMaps();
-	}
-
-	public static void main(String[] args)
-	{
-		Viewer v = new Viewer(new KinectTracker("/home/thomas/corpora/soundpainting/corpus_pilote_07122013/p1.oni"));
-		v.run();
 	}
 }

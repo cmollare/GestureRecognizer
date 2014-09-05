@@ -1,13 +1,10 @@
-package gui;
+package ui;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.util.Arrays;
 import java.util.LinkedList;
 import javax.swing.JFrame;
-
-import recognition.OnlineRecognizer;
 
 public class ScoreGraph extends JFrame
 {
@@ -20,12 +17,12 @@ public class ScoreGraph extends JFrame
 	private static int height = 320;
 	private static double minScore = 0.90;
 
-	public ScoreGraph(int templateCount, String title)
+	public ScoreGraph(int templateCount, String title, double threshold)
 	{
 		count = templateCount;
-		scores = new LinkedList<double[]>();
+		scores = new LinkedList<double[]>(); 
 
-		Component comp = new GraphComponent();
+		Component comp = new GraphComponent(threshold);
 		this.add("Center", comp);
 		this.pack();
 		this.setTitle(title);
@@ -50,6 +47,13 @@ public class ScoreGraph extends JFrame
 
 	private class GraphComponent extends Component
 	{
+		private double detectionThreshold = 1.0f;
+		
+		public GraphComponent(double threshold)
+		{
+			this.detectionThreshold = threshold;
+		}
+		
 		@Override
 		public void paint(Graphics g)
 		{
@@ -60,7 +64,7 @@ public class ScoreGraph extends JFrame
 			float xRatio = (float) width / maxSize;
 			float yRatio = (float) (height / (1 - minScore));
 			g.setColor(Color.BLACK);
-			int threshold = (int) ((1 - OnlineRecognizer.detectionThreshold) * yRatio);
+			int threshold = (int) ((1 - detectionThreshold) * yRatio);
 			g.drawLine(0, threshold, width, threshold);
 
 			for (double[] s : scores)
@@ -86,13 +90,13 @@ public class ScoreGraph extends JFrame
 		}
 	}
 	
-	public static ScoreGraph[] bulkCreate(int size, int[] windows)
+	public static ScoreGraph[] bulkCreate(int size, int[] windows, double threshold)
 	{
 		ScoreGraph[] graphs = new ScoreGraph[windows.length];
 
 		for (int i = 0; i < windows.length; i++)
 		{
-			graphs[i] = new ScoreGraph(size, "Window: " + windows[i]);
+			graphs[i] = new ScoreGraph(size, "Window: " + windows[i], threshold);
 			graphs[i].setLocation(1920 - i * width, 0);
 		}
 

@@ -1,72 +1,120 @@
 package core;
 
-public class Capture
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
+public class Capture implements Serializable, Iterable<Point>
 {
-	public static final int jointCount = 24;
-	public long timestamp;
-	public Point[] points;
+	private HashMap<Joint, Point> points;
+	private String label;
 	
 	public Capture()
 	{
-		points = new Point[Capture.jointCount];
+		points = new HashMap<Joint, Point>();
 	}
 	
-	public Capture(String s)
+	public Capture(String l)
 	{
-		String[] parts = s.split(" ");
-		timestamp = Long.parseLong(parts[0]);
-		points = new Point[Capture.jointCount];
-		for (int i = 0; i < points.length; i++)
+		this();
+		setLabel(l);
+	}
+	
+	public String getLabel()
+	{
+		return label;
+	}
+	
+	public void setLabel(String s)
+	{
+		label = s;
+	}
+	
+	public Iterator<Point> iterator()
+	{
+		return points.values().iterator();
+	}
+	
+	public Set<Joint> joints()
+	{
+		return points.keySet();
+	}
+	
+	public Point get(Joint j)
+	{
+		if (!points.containsKey(j))
 		{
-			double x = Double.parseDouble(parts[i * 3 + 1]);
-			double y = Double.parseDouble(parts[i * 3 + 2]);
-			double z = Double.parseDouble(parts[i * 3 + 3]);
-			points[i] = new Point(x, y, z);
+			System.err.println("Error: Capture.get() the capture does not contain the requested joint");
+			System.exit(1);
 		}
+		
+		return points.get(j);
+	}
+
+	public int jointCount()
+	{
+		return points.size();
 	}
 	
-	public Capture(long timestamp, Point[] p)
+	public Capture copy()
 	{
-		points = p;
-		this.timestamp = timestamp;
+		Capture c = new Capture();
+		for (Joint j : this.points.keySet())
+			c.points.put(j, this.points.get(j).copy());
+			
+		return c;
 	}
 	
-	public static Capture fromChalearn(String line)
+	public void put(Point p, Joint j)
 	{
-//		String zeroline = "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-//		if (line.equals(zeroline))
-//			return null;
-		String[] sl = line.split(",");
-		String[] slp = new String[Capture.jointCount * 3];
-		for (int i = 0; i < sl.length; i += 9)
-			slp[i / 9] = sl[i + 0] + " " + sl[i + 1] + " " + sl[i + 2] + " "; 
+		points.put(j, p);
+	}
+	
+	public Capture select(Joint... joints)
+	{
+		Capture c = new Capture();
 		
-		String s = "0 ";
-		s += slp[3];
-		s += slp[2];
-		s += slp[1];
-		s += slp[0];
-		s += "0 0 0 ";
-		s += slp[4];
-		s += slp[5];
-		s += slp[6];
-		s += slp[7];
-		s += "0 0 0 ";
-		s += "0 0 0 ";
-		s += slp[8];
-		s += slp[9];
-		s += slp[10];
-		s += slp[11];
-		s += "0 0 0 ";
-		s += slp[12];
-		s += slp[13];
-		s += slp[14];
-		s += slp[15];
-		s += slp[16];
-		s += slp[17];
-		s += slp[18];
-		s += slp[19];
+		for (Joint j : points.keySet())
+			c.put(this.get(j), j);
 		
-		return new Capture(s);
+		return c;
+	}
+	
+	public boolean isCompatible(Capture o)
+	{
+		return this.joints().equals(o.joints());
+	}
+	
+	public static double distance(Capture a, Capture b)
+	{
+		if (!a.isCompatible(b))
+		{
+			System.err.println("Capture.distance(): captures do not have the same joint count");
+			System.exit(1);
+		}
+		
+		double d = 0;
+		for (Joint j : a.joints())
+			d += Point.distance(a.get(j), b.get(j));
+
+		return d;
+
+	}
+	
+	public static Capture interpolate(Capture a, Capture b, double v)
+	{
+		if (!a.isCompatible(b))
+		{
+			System.err.println("Capture.interpolate(): captures do not have the same joint count");
+			System.exit(1);
+		}
+		
+		int n = a.jointCount();
+		Capture r = new Capture();
+		for (Joint j : a.joints())
+			r.put(Point.interpolate(a.get(j), b.get(j), v), j);
+		
+		return r;
 	}
 }
