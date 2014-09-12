@@ -1,4 +1,12 @@
 <?xml version="1.0" ?>
 <config>
+	<detectionThreshold>0.97</detectionThreshold>
+	<windows>5 10 15 20 25 30 35 40</windows>
+
 	<sampleCount>32</sampleCount>
+	<joints>LEFT_HAND RIGHT_HAND LEFT_ELBOW RIGHT_ELBOW</joints>
+	<resamplingMethod>GLOBAL_DISTANCE</resamplingMethod> <!-- TIME or GLOBAL_DISTANCE -->
+	<rotationMethod>SHOULDERS</rotationMethod> <!-- NONE or SHOULDERS -->
+	<translationMethod>SHOULDERS</translationMethod> <!-- MIN or CENTROID or SHOULDERS -->
+	<resclalingMethod>ARMS</rescalingMethod> <!-- FULL_BODY or ARMS -->
 </config>

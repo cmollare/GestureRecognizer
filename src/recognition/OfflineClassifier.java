@@ -7,13 +7,15 @@ import core.*;
 
 public class OfflineClassifier
 {
-	public OfflineClassifier()
+	private int[] windows; 
+	
+	public OfflineClassifier(int[] windows)
 	{
+		this.windows = windows;
 	}
 	
 	public void labelize(Gesture g, Recognizer recognizer, OutputWriter output)
 	{
-		int[] windows = new int[] { 5, 6, 7, 8, 9, 10, 20, 30, 40 };
 		int captureCount = g.captureCount();
 		int classCount = recognizer.labelCount();
 		String[] classes = recognizer.labels();

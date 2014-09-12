@@ -7,6 +7,7 @@ import recognition.Recognizer;
 import ui.OutputWriter;
 import ui.StdoutWriter;
 import utils.FormatUtils;
+import core.Config;
 import core.Gesture;
 import core.Joint;
 
@@ -42,18 +43,14 @@ public class GestureClassifier
 
 		if (type.equals("online"))
 		{
-			int[] windows = new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 50, 60 };
-			double threshold = 0.97;
-			Joint[] joints = Joint.arms();
-
-			OnlineClassifier c = new OnlineClassifier(threshold, windows);
-			KinectTracker kt = new KinectTracker(joints, gestureFile);
+			OnlineClassifier c = new OnlineClassifier(Config.detectionThreshold, Config.windows);
+			KinectTracker kt = new KinectTracker(Joint.values(), gestureFile);
 			g = c.labelize(kt, recognizer, ow);
 		}
 		else if (type.equals("offline"))
 		{
 			g = FormatUtils.loadGestureWithExtension(gestureFile);
-			OfflineClassifier c = new OfflineClassifier();
+			OfflineClassifier c = new OfflineClassifier(Config.windows);
 			c.labelize(g, recognizer, ow);
 		}
 		else

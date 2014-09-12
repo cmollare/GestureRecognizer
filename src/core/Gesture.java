@@ -158,29 +158,6 @@ public class Gesture implements Serializable, Iterable<Capture>
 		return r;
 	}
 	
-//	public static void main(String[] arg)
-//	{
-//		Gesture g = new Gesture();
-//		
-//		g.addCapture(new Capture(null));
-//		g.addCapture(new Capture(null));
-//		g.addCapture(new Capture("S"));
-//		g.addCapture(new Capture("S"));
-//		g.addCapture(new Capture("S"));
-//		g.addCapture(new Capture("A"));
-//		g.addCapture(new Capture("A"));
-//		g.addCapture(new Capture("S"));
-//		g.addCapture(new Capture(null));
-//		g.addCapture(new Capture("S"));
-//		
-////		for (Capture c : g)
-////			System.out.println(c.getLabel());
-//		
-//		List<Gesture> r = g.decompose();
-//		for (Gesture i : r)
-//			System.out.println(i.getLabel() +  " " + i.captureCount());
-//	}
-	
 	public Matrix toMatrix(Joint ... joints)
 	{
 		return select(joints).toMatrix();
@@ -215,13 +192,19 @@ public class Gesture implements Serializable, Iterable<Capture>
 
 	public Gesture normalize(int window)
 	{
+		if (!Config.containsRequiredJoints(this))
+		{
+			System.err.println("Error: the gesture does not contain the joints required by the selected normalization methods.");
+			System.exit(1);
+		}
+		
 		Gesture g = this.copy(window);
 
-		g = g.select(NormalizationConfig.joints);
-		g.resample(NormalizationConfig.resamplingMethod);
-		g.rotate(NormalizationConfig.rotMethod);
-		g.translate(NormalizationConfig.transMethod);
-		g.rescale(NormalizationConfig.rescalingMethod);
+		g.rotate(Config.rotationMethod);
+		g.translate(Config.translationMethod);
+		g.rescale(Config.rescalingMethod);
+		g = g.select(Config.joints);
+		g.resample(Config.resamplingMethod);
 
 		return g;
 	}
