@@ -6,30 +6,30 @@ import org.openni.SkeletonJoint;
 
 public enum Joint implements Serializable
 {	
-	HEAD, //4.Head
-	NECK, //3.ShoulderCenter
-	TORSO,//2.Spine
-	WAIST, //1.HipCenter
+	HEAD,
+	NECK,
+	TORSO,
+	WAIST,
 	LEFT_COLLAR,
-	LEFT_SHOULDER,// 5.ShoulderLeft
-	LEFT_ELBOW,//6.ElbowLeft
-	LEFT_WRIST,//7.WristLeft
-	LEFT_HAND,//8.HandLeft
+	LEFT_SHOULDER,
+	LEFT_ELBOW,
+	LEFT_WRIST,
+	LEFT_HAND,
 	LEFT_FINGERTIP,
 	RIGHT_COLLAR,
-	RIGHT_SHOULDER,//9.ShoulderRight
-	RIGHT_ELBOW,//10.ElbowRight
-	RIGHT_WRIST,//11.WristRight
-	RIGHT_HAND,//12.HandRight,
+	RIGHT_SHOULDER,
+	RIGHT_ELBOW,
+	RIGHT_WRIST,
+	RIGHT_HAND,
 	RIGHT_FINGERTIP,
-	LEFT_HIP,//13.HipLeft
-	LEFT_KNEE,//14.KneeLeft
-	LEFT_ANKLE,//15.AnkleLeft
-	LEFT_FOOT,// 16.FootLeft
-	RIGHT_HIP,// 17.HipRight
-	RIGHT_KNEE,// 18.KneeRight
-	RIGHT_ANKLE,// 19.AnkleRight
-	RIGHT_FOOT;// 20.FootRight
+	LEFT_HIP,
+	LEFT_KNEE,
+	LEFT_ANKLE,
+	LEFT_FOOT,
+	RIGHT_HIP,
+	RIGHT_KNEE,
+	RIGHT_ANKLE,
+	RIGHT_FOOT;
 	
 	public SkeletonJoint openni()
 	{

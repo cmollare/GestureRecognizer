@@ -31,16 +31,16 @@ public class GestureClassifier
 			System.exit(1);
 		}
 
-		String recognizerFile = args[0];
-		String gestureFile = args[1];
-		String classifier = args[2];
+		String gestureFile = args[0];
+		String model = args[1];
+		String type = args[2];
 		String output = args[3];
 
 		Gesture g = null;
-		Recognizer recognizer = Recognizer.fromFile(recognizerFile);
+		Recognizer recognizer = Recognizer.fromFile(model);
 		OutputWriter ow = new StdoutWriter();
 
-		if (classifier.equals("online"))
+		if (type.equals("online"))
 		{
 			int[] windows = new int[] { 5, 10, 15, 20, 25, 30, 35, 40, 50, 60 };
 			double threshold = 0.97;
@@ -50,7 +50,7 @@ public class GestureClassifier
 			KinectTracker kt = new KinectTracker(joints, gestureFile);
 			g = c.labelize(kt, recognizer, ow);
 		}
-		else if (classifier.equals("offline"))
+		else if (type.equals("offline"))
 		{
 			g = FormatUtils.loadGestureWithExtension(gestureFile);
 			OfflineClassifier c = new OfflineClassifier();

@@ -91,7 +91,9 @@ public class Gesture implements Serializable, Iterable<Capture>
 
 	public Gesture copy()
 	{
-		return copy(captureCount());
+		Gesture g = copy(captureCount());
+		g.setLabel(getLabel());
+		return g;
 	}
 
 	public Gesture copy(int size)
@@ -213,17 +215,13 @@ public class Gesture implements Serializable, Iterable<Capture>
 
 	public Gesture normalize(int window)
 	{
-		return normalize(window, TranslationMethod.SHOULDERS, RotationMethod.SHOULDERS, ResamplingMethod.GLOBAL_DISTANCE, RescalingMethod.ARMS);
-	}
-
-	public Gesture normalize(int window, TranslationMethod tMethod, RotationMethod rotMethod, ResamplingMethod resMethod, RescalingMethod sMethod)
-	{
 		Gesture g = this.copy(window);
 
-		g.resample(resMethod);
-		g.rotate(rotMethod);
-		g.translate(tMethod);
-		g.rescale(sMethod);
+		g = g.select(NormalizationConfig.joints);
+		g.resample(NormalizationConfig.resamplingMethod);
+		g.rotate(NormalizationConfig.rotMethod);
+		g.translate(NormalizationConfig.transMethod);
+		g.rescale(NormalizationConfig.rescalingMethod);
 
 		return g;
 	}

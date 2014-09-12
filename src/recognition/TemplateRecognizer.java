@@ -11,8 +11,8 @@ public class TemplateRecognizer extends Recognizer
 	@Override
 	public void learn(HashMap<String, List<Gesture>> gesturesByLabel)
 	{
-		templates = gesturesByLabel;
-		labels = (String[]) templates.keySet().toArray();
+		templates = gesturesByLabel;		
+		labels = templates.keySet().toArray(new String[templates.size()]);
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class TemplateRecognizer extends Recognizer
 	{
 		if (a.captureCount() != b.captureCount())
 		{
-			System.err.println("Error: TemplateReconizer.distance(), both gestures have not been resampled.");
+			System.err.println("Error: TemplateRecognizer.distance(), both gestures have not been resampled.");
 			System.exit(1);
 		}
 		

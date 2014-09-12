@@ -13,8 +13,8 @@
 
 	<path id='master-classpath'>
 		<fileset dir='${lib.dir}'>
-		</fileset>
 			<include name='*.jar'/>
+		</fileset>
 		<pathelement path='${build.dir}'/>
 	</path>
 

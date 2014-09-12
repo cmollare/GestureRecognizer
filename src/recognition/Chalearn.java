@@ -17,7 +17,7 @@ import learning.HMM.ViterbiResult;
 import learning.Matrix;
 import core.*;
 
-public class ChalearnRecognizer extends Thread
+public class Chalearn extends Thread
 {
 	private static final int classCount = 21;
 	private static boolean useMLP = false;
@@ -161,7 +161,7 @@ public class ChalearnRecognizer extends Thread
 		{
 			int start = testStart + i * c;
 			int end = i == threadCount - 1 ? testEnd : testStart + (i + 1) * c - 1;
-			threads[i] = new ChalearnRecognizer(start, end);
+			threads[i] = new Chalearn(start, end);
 			threads[i].start();
 		}
 
@@ -189,7 +189,7 @@ public class ChalearnRecognizer extends Thread
 	private int start;
 	private int end;
 
-	public ChalearnRecognizer(int start, int end)
+	public Chalearn(int start, int end)
 	{
 		this.start = start;
 		this.end = end;
@@ -394,7 +394,7 @@ public class ChalearnRecognizer extends Thread
 	{
 		Matrix m = null;
 		BufferedReader br = null;
-		Joint[] joints = ChalearnRecognizer.meaningfulJoints;
+		Joint[] joints = Chalearn.meaningfulJoints;
 
 		try
 		{

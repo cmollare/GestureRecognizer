@@ -13,7 +13,7 @@ public abstract class Recognizer implements Serializable
 	
 	public abstract HashMap<String, Double> recognize(Gesture g);
 	public abstract void learn(HashMap<String, List<Gesture>> gesturesByLabel);
-		
+	
 	public int labelCount()
 	{
 		return labels.length;
