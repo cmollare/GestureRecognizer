@@ -117,7 +117,7 @@ public abstract class Config
 	}
 
 	public static boolean containsRequiredJoints(Gesture g)
-	{
+	{		
 		for (Joint j : requiredJoints)
 		{
 			if (!g.getCapture(0).joints().contains(j))

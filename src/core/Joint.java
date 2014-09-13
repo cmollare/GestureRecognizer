@@ -107,10 +107,16 @@ public enum Joint implements Serializable
 		{RIGHT_KNEE, RIGHT_FOOT}
 };
 	
-	private static Joint[] leftArm = new Joint[]{LEFT_SHOULDER, LEFT_ELBOW, LEFT_HAND, LEFT_WRIST};
-	private static Joint[] rightArm = new Joint[]{RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_HAND, RIGHT_WRIST};
-	private static Joint[] arms = new Joint[]{LEFT_SHOULDER, LEFT_ELBOW, LEFT_HAND, LEFT_WRIST, RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_HAND, RIGHT_WRIST};
-
+	private static Joint[] leftArm = new Joint[]{LEFT_SHOULDER, LEFT_ELBOW, LEFT_HAND};
+	private static Joint[] rightArm = new Joint[]{RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_HAND};
+	private static Joint[] arms = new Joint[]{LEFT_SHOULDER, LEFT_ELBOW, LEFT_HAND, RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_HAND};
+	private static Joint[] niteJoints = new Joint[]{HEAD, NECK, TORSO, LEFT_SHOULDER, LEFT_ELBOW, LEFT_HAND, RIGHT_SHOULDER, RIGHT_ELBOW, RIGHT_HAND, LEFT_HIP, LEFT_KNEE, LEFT_FOOT, RIGHT_HIP, RIGHT_KNEE, RIGHT_FOOT};
+	
+	public static Joint[] niteJoints()
+	{
+		return niteJoints;
+	}
+	
 	public static Joint[] leftArm()
 	{
 		return leftArm;

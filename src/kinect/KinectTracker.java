@@ -6,11 +6,16 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.openni.*;
 
 import ui.View;
+import ui.Viewer;
+import utils.InputUtils;
 import core.Capture;
 import core.Gesture;
 import core.Joint;
@@ -31,15 +36,17 @@ public class KinectTracker implements View
 	private ConcurrentLinkedQueue<Capture> queue;
 	private volatile Capture lastCapture;
 	private Joint[] joints;
+	private Viewer viewer;
 
-	public KinectTracker(Joint[] joints, String filename)
+	public KinectTracker(Joint[] joints, String filename, boolean ui)
 	{
 		this.joints = joints;
+
 		queue = new ConcurrentLinkedQueue<Capture>();
 		try
 		{
 			context = new Context();
-			if (filename != null)
+			if (filename != null && !filename.equals("kinect"))
 				context.openFileRecordingEx(filename);
 
 			License licence = new License("PrimeSense", "0KOIk2JeIBYClPWVnMoRKn5cdY4=");
@@ -55,7 +62,7 @@ public class KinectTracker implements View
 			height = imageMD.getFullYRes();
 			imgbytes = new byte[width * height];
 			image = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_GRAY);
-			
+
 			userGen = UserGenerator.create(context);
 
 			userGen.getNewUserEvent().addObserver(new IObserver<UserEventArgs>()
@@ -91,8 +98,11 @@ public class KinectTracker implements View
 			e.printStackTrace();
 			System.exit(1);
 		}
+		
+		if (ui)
+			viewer = new Viewer(this);
 	}
-	
+
 	public void start()
 	{
 		try
@@ -105,12 +115,18 @@ public class KinectTracker implements View
 		}
 	}
 	
+	public void stop()
+	{
+		if (viewer != null)
+			viewer.stop();
+	}
+
 	public boolean isDone()
 	{
 		return false; // TODO
 	}
-	
-	private void updateAllMaps()
+
+	private void updateCapture()
 	{
 		try
 		{
@@ -124,26 +140,27 @@ public class KinectTracker implements View
 		if (skelCap.isSkeletonTracking(userID))
 		{
 			Capture newCapture = new Capture();
+
 			for (Joint j : joints)
 			{
 				SkeletonJoint joint = j.openni();
 				try
 				{
-					Point p2;
-					if (skelCap.isJointAvailable(joint) && skelCap.isJointActive(joint))
+					Point p2 = null;
+					if (skelCap.isJointAvailable(joint))
 					{
 						SkeletonJointPosition jointPos = skelCap.getSkeletonJointPosition(userID, joint);
 						Point3D p = jointPos.getPosition();
 						p2 = new Point(p.getX(), p.getY(), p.getZ());
 					}
 					else
-						p2 = new Point(0, 0, 0);
-					
+						System.out.println("Warning: joint " + j + " is not available");
+
 					newCapture.put(p2, j);
 				}
 				catch (StatusException e)
 				{
-					System.err.println("Cannot read position for joint: " + joint.name() + " of user: " + userID);
+					System.out.println("Cannot read position for joint: " + joint.name() + " of user: " + userID);
 					e.printStackTrace();
 				}
 			}
@@ -156,7 +173,7 @@ public class KinectTracker implements View
 	{
 		return queue.poll();
 	}
-	
+
 	public boolean isEmpty()
 	{
 		return queue.isEmpty();
@@ -217,50 +234,65 @@ public class KinectTracker implements View
 
 	public static Gesture extractONIGesture(Joint[] joints, String filename)
 	{
-		return recordGesture(joints, filename, 1000);
+		return recordGesture(joints, filename, false);
 	}
-	
-	public static Gesture recordGesture(Joint[] joints, String filename, double duration)
+
+	public static Gesture recordGesture(Joint[] joints, String filename, boolean ui)
 	{
 		Gesture g = new Gesture();
-		
-		long startTime = 0;
-		long ld = (long) (duration * 1000);
+
 		int lastFrameID = -1;
-		KinectTracker kt = new KinectTracker(joints, filename);
+		KinectTracker kt = new KinectTracker(joints, filename, ui);
 		kt.start();
-		boolean firstFrame = true;
-		boolean run = true;
+		boolean recording = false;
+		boolean ready = false;
 		
-		while(run)
+		System.out.println("Please Wait. Detecting the skeleton...");
+		
+		while (true)
 		{
 			kt.update();
-			long currentTime = kt.depthGen.getTimestamp();
 			int currentFrameID = kt.depthGen.getFrameID();
+
+			if (lastFrameID >= currentFrameID)
+				break;
 			
-			if (firstFrame)
+			Capture c = kt.getCapture();
+			
+			if (c == null)
 			{
-				startTime = currentTime;
-				firstFrame = false;
+				if (!recording)
+					continue;
+				break;
 			}
 			
-			if (lastFrameID < currentFrameID && currentTime - startTime < ld)
+			if (!recording)
 			{
-				g.addCapture(kt.getCapture());
-				lastFrameID = currentFrameID;
+				if (!ready)
+				{
+					ready = true;
+					System.out.println("Ready to record. Press ENTER to start.");
+				}
+				else if (InputUtils.enterIsPressed())
+				{
+					recording = true;
+					System.out.println("Recording... Press ENTER to stop.");
+				}
 			}
-			else
-				run = false;
+			else if (InputUtils.enterIsPressed())
+				break;
+			
+			if (recording)
+				g.addCapture(c);
+			
+			lastFrameID = currentFrameID;
 		}
 		
+		kt.stop();
+
 		return g;
 	}
-	
-	public static void main(String[] arg)
-	{
-		Gesture g = extractONIGesture(Joint.arms(), "res/p1.oni");
-	}
-	
+
 	@Override
 	public Dimension getPreferredSize()
 	{
@@ -318,6 +350,8 @@ public class KinectTracker implements View
 	@Override
 	public void update()
 	{
-		updateAllMaps();
+		updateCapture();
+		if (viewer != null)
+			viewer.update();
 	}
 }

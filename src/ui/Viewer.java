@@ -10,14 +10,13 @@ import javax.swing.JFrame;
 
 public class Viewer extends Component
 {
-	private boolean shouldRun = true;
 	private JFrame frame;
 	private View view;
 
 	public Viewer(View view)
 	{
 		this.view = view;
-		frame = new JFrame("OpenNI Viewer");
+		frame = new JFrame("Viewer");
 		frame.addWindowListener(new WindowAdapter()
 		{
 			public void windowClosing(WindowEvent e)
@@ -30,44 +29,39 @@ public class Viewer extends Component
 		frame.pack();
 		frame.setVisible(true);
 		frame.setResizable(false);
+		frame.setFocusableWindowState(false);
 
-		frame.addKeyListener(new KeyListener()
-		{
-			@Override
-			public void keyTyped(KeyEvent arg0)
-			{
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0)
-			{
-			}
-
-			@Override
-			public void keyPressed(KeyEvent arg0)
-			{
-				if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
-				{
-					shouldRun = false;
-				}
-			}
-		});
-	}
-
-	public void run()
-	{
-		while (shouldRun)
-		{
-			view.update();
-			this.repaint();
-		}
-		frame.dispose();
+//		frame.addKeyListener(new KeyListener()
+//		{
+//			@Override
+//			public void keyTyped(KeyEvent arg0)
+//			{
+//			}
+//
+//			@Override
+//			public void keyReleased(KeyEvent arg0)
+//			{
+//			}
+//
+//			@Override
+//			public void keyPressed(KeyEvent arg0)
+//			{
+//				if (arg0.getKeyCode() == KeyEvent.VK_ESCAPE)
+//				{
+//					
+//				}
+//			}
+//		});
 	}
 	
 	public void update()
 	{
-		view.update();
 		this.repaint();
+	}
+	
+	public void stop()
+	{
+		frame.dispose();
 	}
 	
 	public Dimension getPreferredSize()

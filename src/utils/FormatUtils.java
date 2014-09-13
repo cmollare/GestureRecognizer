@@ -1,8 +1,13 @@
 package utils;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+
+import recognition.Chalearn;
 
 import kinect.KinectTracker;
 
@@ -58,19 +63,76 @@ public abstract class FormatUtils
 		return g;
 	}
 	
+	public static void writeTXT(Gesture g, String filename)
+	{
+		try
+		{
+			File file = new File(filename);
+			if (!file.exists())
+			{
+				file.createNewFile();
+			}
+			FileWriter fw = new FileWriter(file.getAbsoluteFile());
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			for (Capture c : g)
+			{
+				String content = "0 ";
+				for (Joint j : Joint.values())
+				{
+					if (c.joints().contains(j))
+					{
+						Point p = c.get(j);
+						content += p.x + " " + p.y + " " + p.z + " ";
+					}
+					else
+						content += "0 0 0 ";
+				}
+				content += "\n";
+				bw.write(content);
+			}
+			bw.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	public static Gesture loadGestureWithExtension(String filename)
 	{
-		String extension = fileExtension(filename).toLowerCase();
+		String extension = fileExtension(filename);
 		
 		switch(extension)
 		{
 		case "oni":
-			return KinectTracker.extractONIGesture(Joint.values(), filename);
+			return KinectTracker.extractONIGesture(Joint.niteJoints(), filename);
 		case "gst":
 			return Gesture.fromFile(filename);
 		case "txt":
 			return FormatUtils.loadTXT(filename);
 		case "csv":
+			return Chalearn.loadChalearnGesture(filename);
+		default:
+			throw new UnsupportedOperationException();
+		}
+	}
+	
+	public static void writeGestureWithExtension(Gesture g, String filename)
+	{
+		String extension = fileExtension(filename);
+		
+		switch(extension)
+		{
+		case "gst":
+			g.toFile(filename);
+			break;
+		case "txt":
+			FormatUtils.writeTXT(g, filename);
+			break;
+		case "csv":
+			throw new UnsupportedOperationException();
+		case "oni":
 			throw new UnsupportedOperationException();
 		default:
 			throw new UnsupportedOperationException();
@@ -79,6 +141,11 @@ public abstract class FormatUtils
 	
 	private static String fileExtension(String f)
 	{
-		return f.substring(f.lastIndexOf('.') + 1);
+		return f.substring(f.lastIndexOf('.') + 1).toLowerCase();
+	}
+	
+	public static boolean inputIsKinect(String f)
+	{
+		return f.equals("kinect") || fileExtension(f).equals("oni");
 	}
 }

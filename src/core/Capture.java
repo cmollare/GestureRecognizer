@@ -45,8 +45,8 @@ public class Capture implements Serializable, Iterable<Point>
 	{
 		if (!points.containsKey(j))
 		{
-			System.err.println("Error: Capture.get() the capture does not contain the requested joint");
-			System.exit(1);
+			System.err.println("Warning: [Capture.get()] The capture does not contain the joint " + j);
+			return null;
 		}
 		
 		return points.get(j);
@@ -75,7 +75,7 @@ public class Capture implements Serializable, Iterable<Point>
 	{
 		Capture c = new Capture();
 		
-		for (Joint j : points.keySet())
+		for (Joint j : joints)
 			c.put(this.get(j), j);
 		
 		return c;

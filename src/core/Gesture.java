@@ -10,9 +10,7 @@ import utils.StringUtils;
 import learning.Matrix;
 
 public class Gesture implements Serializable, Iterable<Capture>
-{
-	public static final int sampleCount = 32;
-	
+{	
 	private List<Capture> captures;
 	private String label;
 
@@ -205,7 +203,7 @@ public class Gesture implements Serializable, Iterable<Capture>
 		g.rescale(Config.rescalingMethod);
 		g = g.select(Config.joints);
 		g.resample(Config.resamplingMethod);
-
+		
 		return g;
 	}
 
@@ -224,7 +222,7 @@ public class Gesture implements Serializable, Iterable<Capture>
 
 	private void resampleLinear()
 	{
-		int n = Gesture.sampleCount;
+		int n = Config.sampleCount;
 		double current = 0;
 		double step = ((double) captureCount()) / (n);
 
@@ -255,7 +253,7 @@ public class Gesture implements Serializable, Iterable<Capture>
 
 	private void resampleGlobal()
 	{
-		int n = Gesture.sampleCount;
+		int n = Config.sampleCount;
 		double step = globalLength() / (n - 1);
 		double currentDistance = 0;
 
@@ -273,14 +271,14 @@ public class Gesture implements Serializable, Iterable<Capture>
 			{
 				lastAdded = b;
 				next++;
-				currentDistance = -d;
+				currentDistance = currentDistance - d;
 			}
 			else
 			{
 				lastAdded = Capture.interpolate(a, b, (currentDistance + step) / d);
 				tmp.add(lastAdded);
 				currentDistance = 0;
-			}
+			}			
 		}
 
 		tmp.add(getCapture(captureCount() - 1));
@@ -441,6 +439,12 @@ public class Gesture implements Serializable, Iterable<Capture>
 	private static double shoulderAngle(Point leftShoulder, Point rightShoulder)
 	{
 		return Math.atan2(rightShoulder.z - leftShoulder.z, rightShoulder.x - leftShoulder.x);
+	}
+	
+	public void printDebug()
+	{
+		System.out.println("Gesture capture count: " + this.captureCount());
+		System.out.println("Gesture label: " + this.getLabel());
 	}
 
 	@Override

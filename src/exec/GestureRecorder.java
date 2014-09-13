@@ -19,28 +19,30 @@ public class GestureRecorder
 	input: filename (.oni, .gst, .csv, .txt)
 	labels: (optional) filename
 	output: filename
+	ui: yes / no
 	
 	***/
 	
 	public static void main(String[] args)
 	{
-		if (args.length < 3)
+		if (args.length < 4)
 		{
 			System.err.println("Error: Missing arguments.");
-			System.err.println("Usage: input labels output");
+			System.err.println("Usage: input labels output ui");
 			System.exit(1);
 		}
 
 		String input = args[0];
-		String labels = args[2];
-		String output = args[3];
+		String labels = args[1];
+		String output = args[2];
+		String ui = args[3];
 		
 		Gesture g = null;
 		
-		if (input.startsWith("kinect#"))
+		if (FormatUtils.inputIsKinect(input))
 		{
-			double duration = getKinectRecordingDuration(input);
-			g = KinectTracker.recordGesture(Joint.values(), null, duration);
+			boolean useUI = ui.equals("yes");
+			g = KinectTracker.recordGesture(Joint.niteJoints(), input, useUI);
 		}
 		else
 			g = FormatUtils.loadGestureWithExtension(input);
@@ -56,7 +58,8 @@ public class GestureRecorder
 				g.setLabel(labels);
 		}
 		
-		g.toFile(output);
+		g = g.normalize();
+		FormatUtils.writeGestureWithExtension(g, output);
 	}
 	
 	public static double getKinectRecordingDuration(String arg)

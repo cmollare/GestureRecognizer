@@ -289,27 +289,27 @@ public class Chalearn extends Thread
 	{
 		List<int[]> stateLabelsTemplate = new ArrayList<int[]>();
 
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 1
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 2
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 3
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 4
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 5
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 6
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 7
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 8
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 9
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 10
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 11
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 12
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 13
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 14
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 15
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 16
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 17
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 18
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 19
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1, 1, 1)); // gesture 20
-		stateLabelsTemplate.add(HMM.generateStateLabels(Gesture.sampleCount, false, 1)); // gesture 21
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 1
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 2
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 3
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 4
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 5
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 6
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 7
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 8
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 9
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 10
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 11
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 12
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 13
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 14
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 15
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 16
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 17
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 18
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 19
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1, 1, 1)); // Config 20
+		stateLabelsTemplate.add(HMM.generateStateLabels(Config.sampleCount, false, 1)); // Config 21
 
 		List<List<Matrix>> gestureList = new ArrayList<List<Matrix>>();
 		List<List<int[]>> stateLabels = new ArrayList<List<int[]>>();
@@ -537,7 +537,7 @@ public class Chalearn extends Thread
 		return nbAddedFramesFiller;
 	}
 
-	private static Gesture loadChalearnGesture(String filename)
+	public static Gesture loadChalearnGesture(String filename)
 	{
 		Gesture g = new Gesture();
 		BufferedReader br = null;
