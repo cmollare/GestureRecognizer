@@ -38,7 +38,7 @@ public abstract class Config
 	{
 		try
 		{
-			File fXmlFile = new File("gestureConfig.xml");
+			File fXmlFile = new File("config.xml");
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(fXmlFile);

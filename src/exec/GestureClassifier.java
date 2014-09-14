@@ -1,7 +1,5 @@
 package exec;
 
-import java.util.List;
-
 import kinect.KinectTracker;
 import recognition.OfflineClassifier;
 import recognition.OnlineClassifier;
@@ -45,14 +43,15 @@ public class GestureClassifier
 
 		Gesture g = null;
 		Recognizer recognizer = Recognizer.fromFile(model);
+		
 		OutputWriter ow = getRequestedWriter(output);
 
 		if (type.equals("online"))
 		{
 			OnlineClassifier c = new OnlineClassifier(Config.detectionThreshold, Config.windows);
 			boolean useUI = ui.equals("yes");
-			KinectTracker kt = new KinectTracker(Joint.values(), gestureFile, useUI);
-			g = c.labelize(kt, recognizer, ow);
+			KinectTracker kt = new KinectTracker(Joint.niteJoints(), gestureFile, useUI);
+			c.labelize(kt, recognizer, ow);
 		}
 		else if (type.equals("offline"))
 		{

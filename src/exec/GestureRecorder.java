@@ -55,9 +55,11 @@ public class GestureRecorder
 				g.applyLabels(l);
 			}
 			else
+			{
 				g.setLabel(labels);
+			}
 		}
-		
+	
 		g = g.normalize();
 		FormatUtils.writeGestureWithExtension(g, output);
 	}

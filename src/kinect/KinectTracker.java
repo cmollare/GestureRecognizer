@@ -37,6 +37,9 @@ public class KinectTracker implements View
 	private volatile Capture lastCapture;
 	private Joint[] joints;
 	private Viewer viewer;
+	private String lastLabel;
+	private int framesLabeled;
+	private static final int maxFramesLabeled = 10; 
 
 	public KinectTracker(Joint[] joints, String filename, boolean ui)
 	{
@@ -344,6 +347,9 @@ public class KinectTracker implements View
 					}
 				}
 			}
+			
+			if (lastLabel != null)
+				g.drawString(lastLabel, 15, 15);
 		}
 	}
 
@@ -353,5 +359,15 @@ public class KinectTracker implements View
 		updateCapture();
 		if (viewer != null)
 			viewer.update();
+		
+		framesLabeled++;
+		if (framesLabeled > maxFramesLabeled)
+			lastLabel = null;
+	}
+	
+	public void writeLabel(String s)
+	{
+		lastLabel = s;
+		framesLabeled = 0;
 	}
 }

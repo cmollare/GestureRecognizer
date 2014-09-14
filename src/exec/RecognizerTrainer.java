@@ -50,8 +50,8 @@ public class RecognizerTrainer
 			System.err.println("Error: the recognizer type \"" + recognizerType + "\" is unkown");
 			System.exit(1);
 		}
-		
-		gr.learn(gesturesByLabel);
+				
+		gr.learn(gesturesByLabel);	
 		gr.toFile(output);
 	}
 	

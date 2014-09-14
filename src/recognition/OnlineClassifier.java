@@ -24,12 +24,13 @@ public class OnlineClassifier
 		this.windows = windows;
 	}
 	
-	public Gesture labelize(KinectTracker tracker, Recognizer recognizer, OutputWriter output)
+	public void labelize(KinectTracker tracker, Recognizer recognizer, OutputWriter output)
 	{		
 		List<double[]> results = new ArrayList<double[]>();
-		double[][] windowResults = new double[windows.length][];
+		double[][] windowResults = new double[windows.length][recognizer.labelCount()];
 		
 		Gesture g = new Gesture();
+		tracker.start();
 		
 		while (!tracker.isDone())
 		{
@@ -49,6 +50,7 @@ public class OnlineClassifier
 					if (label != null)
 					{
 						output.write(label);
+						tracker.writeLabel(label);
 						g = new Gesture();
 						results.clear();
 					}
@@ -56,9 +58,48 @@ public class OnlineClassifier
 			}
 		}
 		
-		return g;
+		System.out.println("stop");
+		tracker.stop();
 	}
-
+	
+	private void evaluateWindows(Gesture g, Recognizer recognizer, double[][] res)
+	{
+		int n = g.captureCount();
+		String[] labels = recognizer.labels();
+		
+		for (int i = 0; i < windows.length; i++)
+		{
+			if (n < windows[i])
+			{
+				for (int j = 0; j < recognizer.labelCount(); j++)
+					res[i][j] = Double.NEGATIVE_INFINITY;
+				continue;
+			}
+			
+			Gesture gt = g.copy(windows[i]).normalize();
+			HashMap<String, Double> r = recognizer.recognize(gt);
+			for (int j = 0; j < recognizer.labelCount(); j++)
+				res[i][j] = r.get(labels[j]);
+		}
+	}
+	
+	private double[] bestResults(double[][] res)
+	{
+		int n = res[0].length;
+		double[] best = new double[n];
+		
+		for (int i = 0; i < n; i++)
+		{
+			for (int j = 0; j < res.length; j++)
+			{
+				if (best[i] < res[j][i])
+					best[i] = res[j][i];
+			}
+		}
+		
+		return best;
+	}
+	
 	private String detectLabel(Recognizer recognizer, List<double[]> res)
 	{
 		int last = res.size() - 1;
@@ -79,38 +120,5 @@ public class OnlineClassifier
 			return null;
 		
 		return bestClass;
-	}
-	
-	private void evaluateWindows(Gesture g, Recognizer recognizer, double[][] res)
-	{
-		for (int i = 0; i < windows.length; i++)
-		{
-			Gesture gt = g.copy(windows[i]).normalize();
-
-			HashMap<String, Double> r = recognizer.recognize(gt);
-			int j = 0;
-			for (String l : recognizer.labels())
-			{
-				res[i][j] = r.get(l);
-				j++;
-			}
-		}
-	}
-	
-	private double[] bestResults(double[][] res)
-	{
-		int n = res[0].length;
-		double[] best = new double[n];
-		
-		for (int i = 0; i < n; i++)
-		{
-			for (int j = 0; j < res.length; j++)
-			{
-				if (best[i] < res[j][i])
-					best[i] = res[j][i];
-			}
-		}
-		
-		return best;
 	}
 }

@@ -204,6 +204,7 @@ public class Gesture implements Serializable, Iterable<Capture>
 		g = g.select(Config.joints);
 		g.resample(Config.resamplingMethod);
 		
+		g.setLabel(this.getLabel());
 		return g;
 	}
 
