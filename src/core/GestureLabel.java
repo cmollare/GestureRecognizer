@@ -79,6 +79,7 @@ public class GestureLabel
 	}
 	
 	
+	@SafeVarargs
 	public static void printLinear(List<GestureLabel> ... labels)
 	{
 		int maxLength = 0;
@@ -96,6 +97,7 @@ public class GestureLabel
 		}
 	}
 
+	@SafeVarargs
 	public static void printLinear2File(String filename, List<GestureLabel> ... labels)
 	{
 		

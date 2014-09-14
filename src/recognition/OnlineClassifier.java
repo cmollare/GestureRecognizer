@@ -58,7 +58,6 @@ public class OnlineClassifier
 			}
 		}
 		
-		System.out.println("stop");
 		tracker.stop();
 	}
 	
