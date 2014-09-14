@@ -6,7 +6,7 @@
 	<property name='verbose' value='no' />
 	<property name='input' value='kinect' />
 	<property name='labels' value='' />
-	<property name='output' value='output' />
+	<property name='output' value='stdout' />
 	<property name='type' value='template' />
 	<property name='model' value='' />
 	<property name='ui' value='no' />

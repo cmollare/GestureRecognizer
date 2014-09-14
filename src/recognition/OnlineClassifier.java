@@ -48,7 +48,6 @@ public class OnlineClassifier
 					String label = detectLabel(recognizer, results);
 					if (label != null)
 					{
-						System.out.println("Detected: " + label);
 						output.write(label);
 						g = new Gesture();
 						results.clear();

@@ -1,14 +1,18 @@
 package exec;
 
+import java.util.List;
+
 import kinect.KinectTracker;
 import recognition.OfflineClassifier;
 import recognition.OnlineClassifier;
 import recognition.Recognizer;
+import ui.OSCWriter;
 import ui.OutputWriter;
 import ui.StdoutWriter;
 import utils.FormatUtils;
 import core.Config;
 import core.Gesture;
+import core.GestureLabel;
 import core.Joint;
 
 public class GestureClassifier
@@ -41,7 +45,7 @@ public class GestureClassifier
 
 		Gesture g = null;
 		Recognizer recognizer = Recognizer.fromFile(model);
-		OutputWriter ow = new StdoutWriter();
+		OutputWriter ow = getRequestedWriter(output);
 
 		if (type.equals("online"))
 		{
@@ -55,10 +59,42 @@ public class GestureClassifier
 			g = FormatUtils.loadGestureWithExtension(gestureFile);
 			OfflineClassifier c = new OfflineClassifier(Config.windows);
 			c.labelize(g, recognizer, ow);
+
+			for (GestureLabel l : g.extractLabels())
+				ow.write(l);
 		}
 		else
-			throw new UnsupportedOperationException();
-		
-		
+			throw new UnsupportedOperationException();		
 	}
+	
+	private static OutputWriter getRequestedWriter(String arg)
+	{
+		if (arg.equals("stdout"))
+			return new StdoutWriter();
+		String[] splitArgs = arg.split(" ");
+		if (splitArgs.length == 3)
+			return new OSCWriter(splitArgs[0], Integer.parseInt(splitArgs[1]), splitArgs[2]);
+		else
+			throw new UnsupportedOperationException();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

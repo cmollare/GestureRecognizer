@@ -34,7 +34,6 @@ public class OfflineClassifier
 					Gesture current = g.copy(i0, i1).normalize();
 					HashMap<String, Double> r = recognizer.recognize(current);
 					
-
 					for (int l = i0; l <= i1; l++)
 					{
 						for (int j = 0; j < classCount; j++)
