@@ -4,9 +4,10 @@ import kinect.KinectTracker;
 import recognition.OfflineClassifier;
 import recognition.OnlineClassifier;
 import recognition.Recognizer;
-import ui.OSCWriter;
-import ui.OutputWriter;
-import ui.StdoutWriter;
+import ui.FileLabelWriter;
+import ui.OSCLabelWriter;
+import ui.LabelWriter;
+import ui.StdoutLabelWriter;
 import utils.FormatUtils;
 import core.Config;
 import core.Gesture;
@@ -15,14 +16,13 @@ import core.Joint;
 
 public class GestureClassifier
 {
-	
 	/***
 	
 	Usage: input recognizer type output ui
 
 	input: filename (.oni, .gst, .csv, .txt)
 	classifier: filename
-	output: filename
+	output: filename or stdout or "ip port osc-address" (OSC)
 	ui: yes / no
 	
 	***/
@@ -41,40 +41,42 @@ public class GestureClassifier
 		String output = args[3];
 		String ui = args[4];
 
-		Gesture g = null;
 		Recognizer recognizer = Recognizer.fromFile(model);
-		
-		OutputWriter ow = getRequestedWriter(output);
+		LabelWriter writer = getRequestedWriter(output);
 
 		if (type.equals("online"))
 		{
-			OnlineClassifier c = new OnlineClassifier(Config.detectionThreshold, Config.windows);
+			OnlineClassifier classifier = new OnlineClassifier(Config.detectionThreshold, Config.windows);
 			boolean useUI = ui.equals("yes");
 			KinectTracker kt = new KinectTracker(Joint.niteJoints(), gestureFile, useUI);
-			c.labelize(kt, recognizer, ow);
+			classifier.labelize(kt, recognizer, writer);
 		}
 		else if (type.equals("offline"))
 		{
-			g = FormatUtils.loadGestureWithExtension(gestureFile);
+			Gesture g = FormatUtils.loadGestureWithExtension(gestureFile);
 			OfflineClassifier c = new OfflineClassifier(Config.windows);
-			c.labelize(g, recognizer, ow);
+			c.labelize(g, recognizer, writer);
 
 			for (GestureLabel l : g.extractLabels())
-				ow.write(l);
+				writer.write(l);
 		}
 		else
-			throw new UnsupportedOperationException();		
+			throw new UnsupportedOperationException();
+		
+		writer.close();
 	}
 	
-	private static OutputWriter getRequestedWriter(String arg)
+	private static LabelWriter getRequestedWriter(String arg)
 	{
 		if (arg.equals("stdout"))
-			return new StdoutWriter();
+			return new StdoutLabelWriter();
+		
 		String[] splitArgs = arg.split(" ");
+		
 		if (splitArgs.length == 3)
-			return new OSCWriter(splitArgs[0], Integer.parseInt(splitArgs[1]), splitArgs[2]);
+			return new OSCLabelWriter(splitArgs[0], Integer.parseInt(splitArgs[1]), splitArgs[2]);
 		else
-			throw new UnsupportedOperationException();
+			return new FileLabelWriter(arg);
 	}
 	
 	

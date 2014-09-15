@@ -78,6 +78,10 @@ public class GestureLabel
 			l.print();
 	}
 	
+	public String toString()
+	{
+		return name + "," + start + "," + end;
+	}
 	
 	@SafeVarargs
 	public static void printLinear(List<GestureLabel> ... labels)

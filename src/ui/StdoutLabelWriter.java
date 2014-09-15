@@ -2,7 +2,7 @@ package ui;
 
 import core.GestureLabel;
 
-public class StdoutWriter implements OutputWriter
+public class StdoutLabelWriter implements LabelWriter
 {
 	@Override
 	public void write(GestureLabel label)
@@ -14,5 +14,11 @@ public class StdoutWriter implements OutputWriter
 	public void write(String s)
 	{
 		System.out.println(s);
+	}
+
+	@Override
+	public void close()
+	{
+		// nothing to do
 	}
 }

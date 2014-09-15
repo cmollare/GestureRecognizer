@@ -6,9 +6,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import org.openni.*;
@@ -40,6 +37,9 @@ public class KinectTracker implements View
 	private String lastLabel;
 	private int framesLabeled;
 	private static final int maxFramesLabeled = 10; 
+	private int lastFrameID;
+	private boolean hasLooped;
+	private boolean hasStopped;
 
 	public KinectTracker(Joint[] joints, String filename, boolean ui)
 	{
@@ -108,6 +108,10 @@ public class KinectTracker implements View
 
 	public void start()
 	{
+		lastFrameID = -1;
+		hasLooped = false;
+		hasStopped = false;
+		
 		try
 		{
 			context.startGeneratingAll();
@@ -118,15 +122,18 @@ public class KinectTracker implements View
 		}
 	}
 	
+	@Override
 	public void stop()
 	{
 		if (viewer != null)
 			viewer.stop();
+		
+		hasStopped = true;
 	}
 
 	public boolean isDone()
 	{
-		return false; // TODO
+		return hasLooped || hasStopped;
 	}
 
 	private void updateCapture()
@@ -363,6 +370,11 @@ public class KinectTracker implements View
 		framesLabeled++;
 		if (framesLabeled > maxFramesLabeled)
 			lastLabel = null;
+		
+		int frameID = depthGen.getFrameID();
+		if (frameID < lastFrameID)
+			hasLooped = true;
+		lastFrameID = frameID;
 	}
 	
 	public void writeLabel(String s)

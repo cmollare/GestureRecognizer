@@ -8,12 +8,12 @@ import java.net.UnknownHostException;
 import core.GestureLabel;
 import com.illposed.osc.*;
 
-public class OSCWriter implements OutputWriter
+public class OSCLabelWriter implements LabelWriter
 {
 	private OSCPortOut sender;
 	private String receiver;
 	
-	public OSCWriter(String ip, int port, String receiver)
+	public OSCLabelWriter(String ip, int port, String receiver)
 	{
 		try
 		{
@@ -50,6 +50,22 @@ public class OSCWriter implements OutputWriter
 	@Override
 	public void write(GestureLabel label)
 	{
-		throw new UnsupportedOperationException(); // TODO
+		Object[] values = new Object[] {label.name, label.start, label.end};
+		OSCMessage msg = new OSCMessage(receiver, values);
+		
+		try
+		{
+			sender.send(msg);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void close()
+	{
+		sender.close();
 	}
 }

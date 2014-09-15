@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import ui.OutputWriter;
+import ui.LabelWriter;
 import kinect.KinectTracker;
 
 import core.Capture;
@@ -24,7 +24,7 @@ public class OnlineClassifier
 		this.windows = windows;
 	}
 	
-	public void labelize(KinectTracker tracker, Recognizer recognizer, OutputWriter output)
+	public void labelize(KinectTracker tracker, Recognizer recognizer, LabelWriter output)
 	{		
 		List<double[]> results = new ArrayList<double[]>();
 		double[][] windowResults = new double[windows.length][recognizer.labelCount()];

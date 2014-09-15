@@ -2,7 +2,7 @@ package recognition;
 
 import java.util.HashMap;
 import learning.Matrix;
-import ui.OutputWriter;
+import ui.LabelWriter;
 import core.*;
 
 public class OfflineClassifier
@@ -14,7 +14,7 @@ public class OfflineClassifier
 		this.windows = windows;
 	}
 	
-	public void labelize(Gesture g, Recognizer recognizer, OutputWriter output)
+	public void labelize(Gesture g, Recognizer recognizer, LabelWriter output)
 	{
 		int captureCount = g.captureCount();
 		int classCount = recognizer.labelCount();

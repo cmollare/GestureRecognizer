@@ -13,7 +13,7 @@ public class Viewer extends Component
 	private JFrame frame;
 	private View view;
 
-	public Viewer(View view)
+	public Viewer(final View view)
 	{
 		this.view = view;
 		frame = new JFrame("Viewer");
@@ -21,7 +21,7 @@ public class Viewer extends Component
 		{
 			public void windowClosing(WindowEvent e)
 			{
-				System.exit(0);
+				view.stop();
 			}
 		});
 
