@@ -1,7 +1,7 @@
 GestureRecognizer
 =================
 
-User Manual
+## User Manual
 
 Last updated: 09/16/2014
 
@@ -42,7 +42,7 @@ sudo apt-get install g++ python openjdk-7-jdk libusb-1.0-0-dev freeglut3-dev ant
 ### With the installer
 
 ``` sh
-./install.sh [repertoire d'installation]
+./install.sh [installation directory]
 ```
 
 Only Gesture Recognizer will be installed in the directory.
@@ -233,7 +233,7 @@ ant recognize -Dinput=kinect -Dmodel=model_play_wg -Dtype=online -Doutput=stdout
 ant recognize -Dinput=geste1.gst -Dmodel=model1 -Dtype=offline -Doutput=”192.168.0.1 9999 /drums”
 ```
 
-Licence
+License
 -------
 
 GestureRecognizer is released under the [MIT license.](https://github.com/0xg/GestureRecognizer/blob/master/LICENSE)

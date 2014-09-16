@@ -78,24 +78,6 @@ public class GestureClassifier
 		else
 			return new FileLabelWriter(arg);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 }
