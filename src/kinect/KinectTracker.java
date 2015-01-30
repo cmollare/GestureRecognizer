@@ -8,7 +8,7 @@ import java.awt.image.DataBufferByte;
 import java.awt.image.Raster;
 import java.nio.ShortBuffer;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import org.openni.*;
+import org.OpenNI.*;
 
 import ui.View;
 import ui.Viewer;
@@ -154,6 +154,7 @@ public class KinectTracker implements View
 			for (Joint j : joints)
 			{
 				SkeletonJoint joint = j.openni();
+
 				try
 				{
 					Point p2 = null;

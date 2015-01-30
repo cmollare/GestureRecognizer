@@ -2,7 +2,7 @@ package core;
 
 import java.io.Serializable;
 
-import org.openni.SkeletonJoint;
+import org.OpenNI.SkeletonJoint;
 
 public enum Joint implements Serializable
 {	
