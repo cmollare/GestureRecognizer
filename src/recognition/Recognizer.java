@@ -7,6 +7,10 @@ import utils.SerializationUtils;
 
 import core.Gesture;
 
+/**
+ * class
+ */
+
 public abstract class Recognizer implements Serializable
 {
 	protected String[] labels;
